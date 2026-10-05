@@ -1,13 +1,13 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { parseTraceparent, sanitizeText, sanitizeUrl } from "../dist/index.js";
+import { parseTraceparent, sanitizeText, sanitizeUrl } from "../dist/esm/index.js";
 import {
   MAX_FEEDBACK_BODY_BYTES,
   buildSignedReportPayload,
   forwardFeedbackReport,
   signFeedbackPayload,
-} from "../dist/server.js";
+} from "../dist/esm/server.js";
 
 describe("sanitize", () => {
   it("redacts secret-looking key/value pairs", () => {

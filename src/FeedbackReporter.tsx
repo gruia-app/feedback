@@ -5,6 +5,9 @@ import { captureFeedbackContext, installFeedbackCapture } from "./capture.js";
 import { sanitizeUrl } from "./sanitize.js";
 import { generateTraceparent, parseTraceparent } from "./traceparent.js";
 import type { Notify, ReportType, ScreenshotAttachment, Severity } from "./types.js";
+import type { Options as Html2CanvasOptions } from "html2canvas";
+
+type Html2CanvasFn = (element: HTMLElement, options?: Partial<Html2CanvasOptions>) => Promise<HTMLCanvasElement>;
 
 export type FeedbackReporterLabels = {
   trigger: string;
@@ -106,12 +109,19 @@ export function FeedbackReporter({
   const captureScreenshot = async () => {
     setCapturingScreenshot(true);
     try {
-      const { default: html2canvas } = await import("html2canvas");
+      // html2canvas ships CJS/UMD with a default export; under NodeNext the
+      // interop shape is ambiguous, so accept either the callable module or
+      // its .default.
+      const loaded = (await import("html2canvas")) as unknown as
+        | Html2CanvasFn
+        | { default?: Html2CanvasFn };
+      const html2canvas: Html2CanvasFn =
+        typeof loaded === "function" ? loaded : (loaded as { default: Html2CanvasFn }).default;
       const canvas = await html2canvas(document.body, {
         backgroundColor: "#09090b",
         scale: Math.min(window.devicePixelRatio || 1, 2),
         useCORS: true,
-        ignoreElements: (element) =>
+        ignoreElements: (element: Element) =>
           element.hasAttribute("data-bug-report-ignore") ||
           element.hasAttribute("data-feedback-ignore") ||
           Boolean(element.closest("[data-bug-report-ignore],[data-feedback-ignore]")) ||
