@@ -34,7 +34,9 @@ export interface FeedbackReporterProps {
     /** Accent style: "dark-red" (default) keeps the original terminal look. */
     accentColor?: string;
     labels?: Partial<FeedbackReporterLabels>;
+    /** Extra headers for the app-local request (e.g. a BFF CSRF token). */
+    requestHeaders?: Record<string, string>;
     /** Set false to render nothing (e.g. gated contexts). */
     enabled?: boolean;
 }
-export declare function FeedbackReporter({ endpoint, allowSuggestions, notify, screenshotFilePrefix, accentColor, labels: labelOverrides, enabled, }: FeedbackReporterProps): import("react").JSX.Element | null;
+export declare function FeedbackReporter({ endpoint, allowSuggestions, notify, screenshotFilePrefix, accentColor, labels: labelOverrides, requestHeaders, enabled, }: FeedbackReporterProps): import("react").JSX.Element | null;

@@ -27,7 +27,7 @@ const DEFAULT_LABELS = {
     suggestionSent: "Suggestion sent to the product backlog",
     sendFailed: "Report failed",
 };
-export function FeedbackReporter({ endpoint = "/api/bug-report", allowSuggestions = true, notify, screenshotFilePrefix = "feedback", accentColor, labels: labelOverrides, enabled = true, }) {
+export function FeedbackReporter({ endpoint = "/api/bug-report", allowSuggestions = true, notify, screenshotFilePrefix = "feedback", accentColor, labels: labelOverrides, requestHeaders, enabled = true, }) {
     const labels = { ...DEFAULT_LABELS, ...labelOverrides };
     const [open, setOpen] = useState(false);
     const [reportType, setReportType] = useState("bug");
@@ -99,7 +99,7 @@ export function FeedbackReporter({ endpoint = "/api/bug-report", allowSuggestion
             });
             const response = await fetch(endpoint, {
                 method: "POST",
-                headers: { "Content-Type": "application/json", traceparent },
+                headers: { ...requestHeaders, "Content-Type": "application/json", traceparent },
                 body: JSON.stringify({
                     title: title.trim(),
                     description: description.trim() || undefined,

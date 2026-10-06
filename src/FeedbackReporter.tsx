@@ -69,6 +69,8 @@ export interface FeedbackReporterProps {
   /** Accent style: "dark-red" (default) keeps the original terminal look. */
   accentColor?: string;
   labels?: Partial<FeedbackReporterLabels>;
+  /** Extra headers for the app-local request (e.g. a BFF CSRF token). */
+  requestHeaders?: Record<string, string>;
   /** Set false to render nothing (e.g. gated contexts). */
   enabled?: boolean;
 }
@@ -80,6 +82,7 @@ export function FeedbackReporter({
   screenshotFilePrefix = "feedback",
   accentColor,
   labels: labelOverrides,
+  requestHeaders,
   enabled = true,
 }: FeedbackReporterProps) {
   const labels = { ...DEFAULT_LABELS, ...labelOverrides };
@@ -159,7 +162,7 @@ export function FeedbackReporter({
       });
       const response = await fetch(endpoint, {
         method: "POST",
-        headers: { "Content-Type": "application/json", traceparent },
+        headers: { ...requestHeaders, "Content-Type": "application/json", traceparent },
         body: JSON.stringify({
           title: title.trim(),
           description: description.trim() || undefined,
