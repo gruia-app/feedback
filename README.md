@@ -69,6 +69,41 @@ Backend contract: see `docs/observability/signoz-open-bugs-ecosystem-rollout.md`
 in autonomous-coding-v2. `app_key` must be registered in `public.apps_registry`
 and have a token in `BUG_REPORT_WEBHOOK_TOKENS_JSON`.
 
+## Public portal: roadmap and suggestions (i18n + SEO)
+
+`@gruia/feedback/portal` ships the copy and SEO helpers for two public pages per
+locale: `/{locale}/roadmap` and `/{locale}/suggestions`. Locales: `es` (source and
+`x-default`), `en`, `fr`, `de`, `pt`, `it`. The module has no React dependency.
+
+```ts
+import {
+  buildPortalMetadata,
+  buildPortalJsonLd,
+  buildPortalSitemapEntries,
+  getPortalMessages,
+  getReporterLabels,
+  resolvePortalLocale,
+} from "@gruia/feedback/portal";
+
+const locale = resolvePortalLocale(request.headers.get("accept-language"));
+const copy = getPortalMessages(locale, { appName: "Ecommerce" });
+const meta = buildPortalMetadata({ locale, page: "roadmap", appName: "Ecommerce", baseUrl: "https://feedback.gruia.app" });
+// meta.canonical, meta.languages (hreflang + x-default), meta.openGraph, meta.twitter
+const jsonLd = buildPortalJsonLd({ locale, page: "roadmap", appName: "Ecommerce", baseUrl: "https://feedback.gruia.app" });
+// WebPage + BreadcrumbList + FAQPage graph; render it with serializeJsonLd()
+```
+
+- `buildPortalSitemapEntries()` returns Next.js `MetadataRoute.Sitemap` entries;
+  `buildPortalSitemapXml()` returns a standalone `sitemap.xml` with `xhtml:link` alternates.
+- `renderPortalHeadTags()` returns escaped `<head>` tags for apps without a metadata API.
+- `getReporterLabels(locale)` gives localized `labels` for `<FeedbackReporter />`.
+- `formatVotes(locale, n)` and `formatLastUpdated(locale, date)` use `Intl` plural and date rules.
+
+Placeholders are `{appName}`, `{count}` and `{date}`. `test/i18n.test.mjs` fails if a
+locale misses a key, changes an array length, drifts a placeholder, leaves a
+`TODO`/`Lorem`/`...`, or breaks the title (max 60) and description (110 to 165) limits.
+Run it alone with `pnpm run test:i18n` after a build.
+
 ## Build
 
 `dist/` is committed so git-dep consumers need no build step.
