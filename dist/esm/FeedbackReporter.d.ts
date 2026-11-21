@@ -9,6 +9,10 @@ export type FeedbackReporterLabels = {
     titlePlaceholderSuggestion: string;
     description: string;
     severity: string;
+    severityLow: string;
+    severityMedium: string;
+    severityHigh: string;
+    severityCritical: string;
     screenshot: string;
     capture: string;
     recapture: string;
@@ -21,6 +25,8 @@ export type FeedbackReporterLabels = {
     bugSent: string;
     suggestionSent: string;
     sendFailed: string;
+    bugAndFeatureCreated: string;
+    close: string;
 };
 export interface FeedbackReporterProps {
     /** App-local server route that signs and forwards the report. */

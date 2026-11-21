@@ -19,6 +19,10 @@ export type FeedbackReporterLabels = {
   titlePlaceholderSuggestion: string;
   description: string;
   severity: string;
+  severityLow: string;
+  severityMedium: string;
+  severityHigh: string;
+  severityCritical: string;
   screenshot: string;
   capture: string;
   recapture: string;
@@ -31,6 +35,8 @@ export type FeedbackReporterLabels = {
   bugSent: string;
   suggestionSent: string;
   sendFailed: string;
+  bugAndFeatureCreated: string;
+  close: string;
 };
 
 const DEFAULT_LABELS: FeedbackReporterLabels = {
@@ -43,6 +49,10 @@ const DEFAULT_LABELS: FeedbackReporterLabels = {
   titlePlaceholderSuggestion: "What should this app do better?",
   description: "Description",
   severity: "Severity",
+  severityLow: "low",
+  severityMedium: "medium",
+  severityHigh: "high",
+  severityCritical: "critical",
   screenshot: "Screenshot",
   capture: "Capture",
   recapture: "Recapture",
@@ -55,6 +65,8 @@ const DEFAULT_LABELS: FeedbackReporterLabels = {
   bugSent: "Bug report sent",
   suggestionSent: "Suggestion sent to the product backlog",
   sendFailed: "Report failed",
+  bugAndFeatureCreated: "Bug and feature created",
+  close: "Close",
 };
 
 export interface FeedbackReporterProps {
@@ -203,7 +215,7 @@ export function FeedbackReporter({
         reportType === "suggestion"
           ? labels.suggestionSent
           : payload?.feature_id
-            ? "Bug and feature created"
+            ? labels.bugAndFeatureCreated
             : labels.bugSent,
       );
       setOpen(false);
@@ -251,7 +263,7 @@ export function FeedbackReporter({
                 <BugIcon />
                 {reportType === "suggestion" ? labels.dialogTitleSuggestion : labels.dialogTitleBug}
               </div>
-              <button type="button" onClick={() => setOpen(false)} className="gfb-close" aria-label="Close">
+              <button type="button" onClick={() => setOpen(false)} className="gfb-close" aria-label={labels.close}>
                 <XIcon />
               </button>
             </div>
@@ -305,10 +317,10 @@ export function FeedbackReporter({
                     onChange={(event) => setSeverity(event.target.value as Severity)}
                     className="gfb-input"
                   >
-                    <option value="low">low</option>
-                    <option value="medium">medium</option>
-                    <option value="high">high</option>
-                    <option value="critical">critical</option>
+                    <option value="low">{labels.severityLow}</option>
+                    <option value="medium">{labels.severityMedium}</option>
+                    <option value="high">{labels.severityHigh}</option>
+                    <option value="critical">{labels.severityCritical}</option>
                   </select>
                 </label>
               ) : null}

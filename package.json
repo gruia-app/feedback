@@ -17,6 +17,11 @@
       "import": "./dist/esm/server.js",
       "require": "./dist/cjs/server.js"
     },
+    "./portal": {
+      "types": "./dist/esm/portal/index.d.ts",
+      "import": "./dist/esm/portal/index.js",
+      "require": "./dist/cjs/portal/index.js"
+    },
     "./styles.css": "./styles.css",
     "./package.json": "./package.json"
   },
@@ -27,7 +32,8 @@
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json && tsc -p tsconfig.cjs.json && node scripts/write-cjs-manifest.mjs",
-    "test": "pnpm run build && node --test \"test/*.test.mjs\""
+    "test": "pnpm run build && node --test \"test/*.test.mjs\"",
+    "test:i18n": "node --test test/i18n.test.mjs"
   },
   "peerDependencies": {
     "react": ">=18.0.0",
