@@ -17,6 +17,16 @@
       "import": "./dist/esm/server.js",
       "require": "./dist/cjs/server.js"
     },
+    "./client-summary": {
+      "types": "./dist/esm/clientSummary.d.ts",
+      "import": "./dist/esm/clientSummary.js",
+      "require": "./dist/cjs/clientSummary.js"
+    },
+    "./client-summary-server": {
+      "types": "./dist/esm/clientSummaryServer.d.ts",
+      "import": "./dist/esm/clientSummaryServer.js",
+      "require": "./dist/cjs/clientSummaryServer.js"
+    },
     "./styles.css": "./styles.css",
     "./package.json": "./package.json"
   },
