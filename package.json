@@ -17,10 +17,19 @@
       "import": "./dist/esm/server.js",
       "require": "./dist/cjs/server.js"
     },
+    "./portal": {
+      "types": "./dist/esm/portal.d.ts",
+      "import": "./dist/esm/portal.js",
+      "require": "./dist/cjs/portal.js"
+    },
     "./styles.css": "./styles.css",
     "./package.json": "./package.json"
   },
+  "bin": {
+    "gruia-feedback": "./bin/gruia-feedback.mjs"
+  },
   "files": [
+    "bin",
     "dist",
     "styles.css",
     "README.md"

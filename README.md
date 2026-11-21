@@ -69,6 +69,56 @@ Backend contract: see `docs/observability/signoz-open-bugs-ecosystem-rollout.md`
 in autonomous-coding-v2. `app_key` must be registered in `public.apps_registry`
 and have a token in `BUG_REPORT_WEBHOOK_TOKENS_JSON`.
 
+## Client follow-up (portal + CLI)
+
+`@gruia/feedback/portal` (server only) lets a client see the reports it sent and their status.
+It also lets the client create new ones. The client id comes only from a scoped client token or from the app session.
+It never comes from the query, the body or a header. Responses are an allow-list view.
+Internal comments, assignees, triage notes and stack traces never leave the server.
+A team comment reaches the client only with `visibility: "public"`.
+
+```ts
+// app/api/feedback/mine/route.ts
+import { handleClientFeedbackRequest } from "@gruia/feedback/portal";
+
+const options = {
+  appKey: "ecommerce",
+  tokenSecret: process.env.FEEDBACK_CLIENT_TOKEN_SECRET, // >= 32 chars, NOT the webhook token
+  authenticate: async () => (await getSession())?.clientId ?? null, // browser view
+  store: {
+    listByClient: (clientId) => db.feedback.findMany({ where: { client_id: clientId } }),
+    createForClient: (clientId, payload) => db.feedback.create({ data: { ...payload, client_id: clientId } }),
+  },
+};
+
+async function handle(req: Request) {
+  const res = await handleClientFeedbackRequest(
+    { method: req.method, headers: Object.fromEntries(req.headers), body: req.method === "POST" ? await req.text() : undefined },
+    options,
+  );
+  return Response.json(res.body, { status: res.status, headers: res.headers });
+}
+export { handle as GET, handle as POST };
+```
+
+- `issueClientToken(clientId, secret, { ttlSeconds, scopes })` issues a `gfc1.` token. Scopes: `feedback:list`, `feedback:create`. Lifetime: 30 days by default, 90 days max.
+- A present but invalid `Authorization` header gets 401. It never falls back to the session.
+- The handler drops any record whose `client_id` is not the caller's, even if the store returns it.
+- Statuses collapse to `received | in_review | planned | in_progress | resolved | closed | declined`.
+
+Browser view: `<ClientFeedbackList endpoint="/api/feedback/mine" />` from `@gruia/feedback`.
+
+CLI (`gruia-feedback`), limited to the client's own reports:
+
+```sh
+export GRUIA_FEEDBACK_URL=https://app.example/api/feedback/mine
+export GRUIA_FEEDBACK_TOKEN=gfc1....        # or --token-file PATH; --token is refused
+gruia-feedback list [--json]
+gruia-feedback create --title "Checkout falla" [--type bug|suggestion] [--severity high] [--description "..."]
+```
+
+The CLI needs https (http only for localhost) and refuses redirects. Exit codes: 0 ok, 1 remote error, 2 usage error.
+
 ## Build
 
 `dist/` is committed so git-dep consumers need no build step.

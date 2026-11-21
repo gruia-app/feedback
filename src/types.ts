@@ -69,3 +69,33 @@ export type FeedbackSubmitBody = {
 
 export type NotifyKind = "success" | "error";
 export type Notify = (kind: NotifyKind, message: string) => void;
+
+/** Status vocabulary shown to the reporting client. Internal triage states collapse into these. */
+export type ClientFeedbackStatus =
+  | "received"
+  | "in_review"
+  | "planned"
+  | "in_progress"
+  | "resolved"
+  | "closed"
+  | "declined";
+
+/** A team reply the team explicitly marked as public. Internal comments never reach this shape. */
+export type ClientFeedbackReply = {
+  body: string;
+  created_at?: string;
+};
+
+/** Client-facing view of one report: an allow-list, never the raw stored record. */
+export type ClientFeedbackItem = {
+  id: string;
+  title: string;
+  report_type: ReportType;
+  status: ClientFeedbackStatus;
+  severity?: Severity;
+  description?: string;
+  route?: string;
+  created_at?: string;
+  updated_at?: string;
+  replies: ClientFeedbackReply[];
+};
