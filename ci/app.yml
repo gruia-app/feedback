@@ -1,0 +1,63 @@
+# @gruia/feedback: shared reporter package. Consumers pin a commit SHA and
+# load the committed dist/, so CI proves that dist/ matches src/.
+app_key: feedback
+repo: https://github.com/gruia-app/feedback.git
+repo_owner: gruia-app
+default_branch: main
+display_name: "@gruia/feedback"
+
+stack:
+  type: [node]
+
+paths:
+  root: .
+
+commands:
+  install:
+    - pnpm install --frozen-lockfile
+  lint: []
+  typecheck:
+    - pnpm exec tsc --noEmit -p tsconfig.json
+    - pnpm exec tsc --noEmit -p tsconfig.cjs.json
+  test:
+    - id: feedback-node-suite
+      profile: heavy
+      always_run: true
+      timeout_minutes: 10
+      run: |
+        mkdir -p .simplia-ci/test-results &&
+        pnpm run build &&
+        node --test --test-concurrency=1 --test-reporter=spec --test-reporter-destination=stdout --test-reporter=junit --test-reporter-destination=.simplia-ci/test-results/feedback-node.xml test/*.test.mjs
+      reports:
+        - type: junit
+          path: .simplia-ci/test-results/feedback-node.xml
+          required: true
+    - id: feedback-dist-drift
+      profile: heavy
+      always_run: true
+      timeout_minutes: 5
+      run: |
+        pnpm run build &&
+        git diff --exit-code --stat -- dist
+  build:
+    - pnpm run build
+  e2e: []
+
+deploy:
+  type: none
+
+health:
+  staging: []
+  production: []
+
+security:
+  trivy: true
+  severity: HIGH,CRITICAL
+  fail_on_vulnerability: true
+
+ci:
+  resources:
+    enabled: true
+    build_class: small
+    deploy_class: small
+    separate_deploy_runner: false

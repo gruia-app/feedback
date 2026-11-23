@@ -69,6 +69,39 @@ Backend contract: see `docs/observability/signoz-open-bugs-ecosystem-rollout.md`
 in autonomous-coding-v2. `app_key` must be registered in `public.apps_registry`
 and have a token in `BUG_REPORT_WEBHOOK_TOKENS_JSON`.
 
+## Client summary endpoint (gestor feed)
+
+`@gruia/feedback/client-summary` and `@gruia/feedback/client-summary-server`
+expose a bounded, framework-agnostic handler that summarizes a client's own
+feedback feed for the gestor: CSAT index, ratings, reported incidents and
+deliverable approvals.
+
+Multi-tenant isolation is fail-closed: the `clientId` is resolved only from a
+client token via the injected `ClientSummaryBackend.authenticateClient`.
+Tenant identifiers in the query are ignored, and records from other clients
+are dropped before aggregation. Summaries always return `estado: "borrador"`;
+human review is required before anything is sent to the client.
+
+```ts
+import { createClientSummaryHandler } from "@gruia/feedback/client-summary-server";
+
+const handler = createClientSummaryHandler({
+  async authenticateClient(token) {
+    // resolve token -> { ok: true, clientId } or { ok: false, reason }
+  },
+  async listFeedbackRecords(clientId, range) {
+    // return only this client's ClientFeedbackRecord[]
+  },
+});
+
+// Framework-agnostic: wrap request/response however your app does.
+const res = await handler({ headers: req.headers, query: req.query });
+// res = { status: 200, body: { ok: true, resumen, generado_en, nota } }
+```
+
+`summarizeClientFeedback` from `@gruia/feedback/client-summary` is the pure
+aggregation function if you need the summary without the HTTP boundary.
+
 ## Build
 
 `dist/` is committed so git-dep consumers need no build step.
